@@ -17,9 +17,41 @@ declare module "@kissflow/lowcode-client-sdk" {
         openPopup(popupId: string, params?: object): Promise<unknown>;
     }
 
+    // A flow report (SDK 1.0.52). Only FilterParam is read from a payload: the report's
+    // open parameters, each named with a leading $ and sent as text.
+    interface KfReportPayload {
+        FilterParam?: Record<string, string | string[] | object>;
+    }
+
+    interface KfReportDataResponse {
+        Data: unknown[];
+        [key: string]: unknown;
+    }
+
+    interface KfReportField {
+        Id: string;
+        Name: string;
+        [key: string]: unknown;
+    }
+
+    interface KfReport {
+        getData(options?: {
+            pageNumber?: number;
+            pageSize?: number;
+            payload?: KfReportPayload;
+        }): Promise<KfReportDataResponse>;
+        getCount(options?: { payload?: KfReportPayload }): Promise<number>;
+        getFields(): Promise<KfReportField[]>;
+    }
+
     interface KfApplication {
         page: KfPage;
         openPage(pageId: string, params?: object): Promise<unknown>;
+        getReport(
+            flowType: "Form" | "Process" | "Case",
+            flowId: string,
+            reportId: string
+        ): KfReport;
         getVariable(key: string): Promise<unknown>;
         setVariable(
             key: string | Record<string, unknown>,
